@@ -1,8 +1,10 @@
 package fi.invian.codingassignment.app;
 
+import fi.invian.codingassignment.database.MessageDAO;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -17,8 +19,15 @@ public class BackendApplication {
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/*");
+
         ServletContainer jersey = new ServletContainer(new ResourceConfig() {{
             packages("fi.invian.codingassignment.rest");
+            register(new org.glassfish.hk2.utilities.binding.AbstractBinder() {
+                @Override
+                protected void configure() {
+                    bind(MessageDAO.class).to(MessageDAO.class);
+                }
+            });
         }});
         ServletHolder holder = new ServletHolder(jersey);
         context.addServlet(holder, "/*");
