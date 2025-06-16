@@ -6,6 +6,9 @@ import fi.invian.codingassignment.pojos.MessageResponse;
 import fi.invian.codingassignment.pojos.UserWithMessageCount;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.sql.SQLException;
@@ -20,14 +23,14 @@ public class MessagingAPI {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/add") //TODO VALIDATION
-    public void addMessage(MessageParameters messageParameters) {
+    @Path("/add")
+    public void addMessage(@Valid MessageParameters messageParameters) {
         messageDAO.saveMessage(messageParameters);
     }
 
     @GET
     @Path("/user/{user-id}")
-    public List<MessageResponse> getMessagesForUser(@PathParam("user-id") int userId) {
+    public List<MessageResponse> getMessagesForUser(@Positive @PathParam("user-id") int userId) {
         try {
             return messageDAO.getMessagesForUser(userId);
         } catch (SQLException e) {

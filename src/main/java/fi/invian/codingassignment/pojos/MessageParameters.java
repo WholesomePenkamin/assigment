@@ -1,43 +1,21 @@
 package fi.invian.codingassignment.pojos;
 
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.util.List;
 
 
 public class MessageParameters {
 
-    private int id;
-    private int senderId;
-    private String title;
-    private String body;
-    private String sentAt;
-    private List<Integer> recipientId;
+    private @Positive int senderId;
+    private @NotEmpty String title;
+    private @NotEmpty String body;
+    private @NotBlank String sentAt;
 
-    public MessageParameters(int id, int senderId, String title, String body, String sentAt) {
-        this.id = id;
-        this.senderId = senderId;
-        this.title = title;
-        this.body = body;
-        this.sentAt = sentAt;
-    }
-
-    public MessageParameters(int id, int senderId, String title, String body, String sentAt, List<Integer> recipientId) {
-        this.id = id;
-        this.senderId = senderId;
-        this.title = title;
-        this.body = body;
-        this.sentAt = sentAt;
-        this.recipientId = recipientId;
-    }
+    @Valid @Size(min = 1, max = 5, message = "You must specify 1 to 5 recipients")
+    private List<@Positive(message = "Recipient IDs must be positive") Integer> recipientId;
 
     public MessageParameters() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getSenderId() {

@@ -1,6 +1,7 @@
 package fi.invian.codingassignment.app;
 
 import fi.invian.codingassignment.database.MessageDAO;
+import fi.invian.codingassignment.rest.utils.ValidationExceptionMapper;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
