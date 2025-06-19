@@ -5,7 +5,7 @@ import javax.ws.rs.core.Response;
 
 public class HttpResponseBuilder {
 
-    public static Response buildErrorRespons(Response.Status status, String message) {
+    public static Response buildErrorResponse(Response.Status status, String message) {
 
         return Response.status(status)
                 .type(MediaType.APPLICATION_JSON)
