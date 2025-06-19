@@ -1,47 +1,80 @@
 package fi.invian.codingassignment.rest;
 
 import fi.invian.codingassignment.database.MessageDAO;
+import fi.invian.codingassignment.database.UserCache;
 import fi.invian.codingassignment.pojos.MessageParameters;
-import fi.invian.codingassignment.pojos.MessageResponse;
-import fi.invian.codingassignment.pojos.UserWithMessageCount;
+import fi.invian.codingassignment.rest.utils.HttpResponseBuilder;
+import fi.invian.codingassignment.rest.utils.UserNotFoundException;
+import org.glassfish.jersey.internal.guava.UncheckedExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.sql.SQLException;
-import java.util.List;
+import javax.ws.rs.core.Response;
 
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
 public class MessagingAPI {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MessagingAPI.class);
+
     @Inject
     MessageDAO messageDAO;
+
+    @Inject
+    UserCache userCache;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/add")
-    public void addMessage(@Valid MessageParameters messageParameters) {
+    public Response addMessage(@Valid MessageParameters messageParameters) {
+        try {
+            userCache.assertValidUser(messageParameters.getSenderId());
+            userCache.assertValidUsers(messageParameters.getRecipientIds());
+
+        } catch (UncheckedExecutionException e) {
+            return e.getCause() instanceof UserNotFoundException ? HttpResponseBuilder.buildErrorRespons(Response.Status.BAD_REQUEST, e.getMessage()) :
+                    HttpResponseBuilder.buildErrorRespons(Response.Status.INTERNAL_SERVER_ERROR, "Server error occurred.");
+        }
         messageDAO.saveMessage(messageParameters);
+        return Response.status(Response.Status.CREATED).build();
     }
+
 
     @GET
     @Path("/user/{user-id}")
-    public List<MessageResponse> getMessagesForUser(@Positive @PathParam("user-id") int userId) {
+    public Response getMessagesForUser(@Positive @PathParam("user-id") int userId) {
         try {
-            return messageDAO.getMessagesForUser(userId);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            userCache.assertValidUser(userId);
+        } catch (UncheckedExecutionException e) {
+            return e.getCause() instanceof UserNotFoundException ? HttpResponseBuilder.buildErrorRespons(Response.Status.NOT_FOUND, e.getMessage()) :
+                    HttpResponseBuilder.buildErrorRespons(Response.Status.INTERNAL_SERVER_ERROR, "Server error occurred.");
         }
+        return Response.ok(messageDAO.getMessagesForUser(userId)).build();
     }
 
     @GET
     @Path("/statistics/top-senders")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<UserWithMessageCount> getTopSenders() throws SQLException {
-        return messageDAO.getTopSendersLast30Days();
+    public Response getTopSenders() {
+        return Response.ok(messageDAO.getTopSendersLast30Days()).build();
     }
+
+    private Response handleUserValidation(Runnable validationTask, Response onSuccess) {
+        try {
+            validationTask.run();
+            return onSuccess;
+        } catch (UncheckedExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof UserNotFoundException) {
+                return HttpResponseBuilder.buildErrorRespons(Response.Status.BAD_REQUEST, cause.getMessage());
+            }
+            LOG.error("Unexpected server error", e);
+            return HttpResponseBuilder.buildErrorRespons(Response.Status.INTERNAL_SERVER_ERROR, "Server error occurred.");
+        }
+    }
+
 }

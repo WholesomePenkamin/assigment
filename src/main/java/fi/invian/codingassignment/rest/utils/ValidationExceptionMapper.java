@@ -1,6 +1,7 @@
 package fi.invian.codingassignment.rest.utils;
 
 import javax.validation.ConstraintViolationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -16,8 +17,8 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
                 .collect(Collectors.joining(", "));
 
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"" + message + "\"}")
-                .type("application/json")
+                .entity(new ErrorResponse(message))
+                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 }

@@ -34,3 +34,7 @@ CREATE TABLE message_recipients (
     FOREIGN KEY (message_id) REFERENCES messages(id),
     FOREIGN KEY (recipient_id) REFERENCES users(id)
 );
+
+CREATE INDEX idx_message_recipients_recipient_id ON message_recipients(recipient_id);
+CREATE INDEX idx_messages_sender_id ON messages(sender_id);
+CREATE INDEX idx_messages_sent_at ON messages(sent_at);

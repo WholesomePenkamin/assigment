@@ -1,6 +1,7 @@
 package fi.invian.codingassignment.app;
 
 import fi.invian.codingassignment.database.MessageDAO;
+import fi.invian.codingassignment.database.UserCache;
 import fi.invian.codingassignment.rest.utils.ValidationExceptionMapper;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -10,6 +11,7 @@ import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import javax.inject.Singleton;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
@@ -26,7 +28,8 @@ public class BackendApplication {
             register(new org.glassfish.hk2.utilities.binding.AbstractBinder() {
                 @Override
                 protected void configure() {
-                    bind(MessageDAO.class).to(MessageDAO.class);
+                    bind(UserCache.class).to(UserCache.class).in(Singleton.class);
+                    bind(MessageDAO.class).to(MessageDAO.class).in(Singleton.class);
                 }
             });
         }});

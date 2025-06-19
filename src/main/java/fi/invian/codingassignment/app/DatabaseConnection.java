@@ -3,6 +3,8 @@ package fi.invian.codingassignment.app;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.mariadb.jdbc.Driver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -10,6 +12,8 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
     private static HikariDataSource dataSource;
+
+    private static final Logger LOG = LoggerFactory.getLogger(DatabaseConnection.class);
 
     public static Connection getConnection() throws SQLException {
         return getDataSource().getConnection();
@@ -37,6 +41,26 @@ public class DatabaseConnection {
     static void closeDataSource() {
         dataSource.close();
         dataSource = null;
+    }
+
+    public static void rollback(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                LOG.warn("Rollback failed", rollbackEx);
+            }
+        }
+    }
+
+    public static void close(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException closeEx) {
+                LOG.warn("Closing connection failed", closeEx);
+            }
+        }
     }
 
     private DatabaseConnection() {}

@@ -1,8 +1,11 @@
 package fi.invian.codingassignment.pojos;
 
 import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
 
 public class MessageParameters {
@@ -13,7 +16,7 @@ public class MessageParameters {
     private @NotBlank String sentAt;
 
     @Valid @Size(min = 1, max = 5, message = "You must specify 1 to 5 recipients")
-    private List<@Positive(message = "Recipient IDs must be positive") Integer> recipientId;
+    private Set<@Positive(message = "Recipient IDs must be positive") Integer> recipientId;
 
     public MessageParameters() {
     }
@@ -50,11 +53,11 @@ public class MessageParameters {
         this.sentAt = sentAt;
     }
 
-    public List<Integer> getRecipientIds() {
+    public Set<Integer> getRecipientIds() {
         return recipientId;
     }
 
-    public void setRecipientId(List<Integer> recipientId) {
+    public void setRecipientId(Set<Integer> recipientId) {
         this.recipientId = recipientId;
     }
 }
