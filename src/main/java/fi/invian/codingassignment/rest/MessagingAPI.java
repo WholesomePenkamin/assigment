@@ -62,19 +62,4 @@ public class MessagingAPI {
     public Response getTopSenders() {
         return Response.ok(messageDAO.getTopSendersLast30Days()).build();
     }
-
-    private Response handleUserValidation(Runnable validationTask, Response onSuccess) {
-        try {
-            validationTask.run();
-            return onSuccess;
-        } catch (UncheckedExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof UserNotFoundException) {
-                return HttpResponseBuilder.buildErrorRespons(Response.Status.BAD_REQUEST, cause.getMessage());
-            }
-            LOG.error("Unexpected server error", e);
-            return HttpResponseBuilder.buildErrorRespons(Response.Status.INTERNAL_SERVER_ERROR, "Server error occurred.");
-        }
-    }
-
 }
