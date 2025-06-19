@@ -37,7 +37,8 @@ public class MessagingAPI {
             userCache.assertValidUsers(messageParameters.getRecipientIds());
 
         } catch (UncheckedExecutionException e) {
-            return e.getCause() instanceof UserNotFoundException ? HttpResponseBuilder.buildErrorResponse(Response.Status.BAD_REQUEST, e.getMessage()) :
+            return e.getCause() instanceof UserNotFoundException ?
+                    HttpResponseBuilder.buildErrorResponse(Response.Status.BAD_REQUEST, e.getMessage()) :
                     HttpResponseBuilder.buildErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, "Server error occurred.");
         }
         messageDAO.saveMessage(messageParameters);
@@ -51,9 +52,10 @@ public class MessagingAPI {
         try {
             userCache.assertValidUser(userId);
         } catch (UncheckedExecutionException e) {
-            return e.getCause() instanceof UserNotFoundException ? HttpResponseBuilder.buildErrorResponse(Response.Status.NOT_FOUND, e.getMessage()) :
+            return e.getCause() instanceof UserNotFoundException ?
+                    HttpResponseBuilder.buildErrorResponse(Response.Status.NOT_FOUND, e.getMessage()) :
                     HttpResponseBuilder.buildErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, "Server error occurred.");
-        } //TODO fetch from cache
+        } //TODO fetch from cache instantly. Response duplication
         return Response.ok(messageDAO.getMessagesForUser(userId)).build();
     }
 
