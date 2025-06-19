@@ -1,5 +1,7 @@
 package fi.invian.codingassignment.pojos;
 
+import fi.invian.codingassignment.rest.utils.DateTimeFormat;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -13,7 +15,9 @@ public class MessageParameters {
     private @Positive int senderId;
     private @NotEmpty String title;
     private @NotEmpty String body;
-    private @NotBlank String sentAt; //TODO validation for datetime
+
+    @DateTimeFormat
+    private @NotBlank String sentAt;
 
     @Valid @Size(min = 1, max = 5, message = "You must specify 1 to 5 recipients")
     private Set<@Positive(message = "Recipient IDs must be positive") Integer> recipientId;
